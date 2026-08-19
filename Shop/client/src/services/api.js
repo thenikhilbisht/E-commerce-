@@ -170,6 +170,26 @@ api.interceptors.response.use(
         return Promise.resolve({ data: { settings: MOCK_SETTINGS } });
       }
 
+      if (url.includes('/auth/login')) {
+        let reqData = {};
+        try { reqData = JSON.parse(error.config.data || '{}'); } catch (e) {}
+        const isAdmin = (reqData.email || '').toLowerCase().includes('admin');
+        const mockUser = {
+          id: isAdmin ? 1 : 2,
+          name: isAdmin ? 'Admin' : 'Customer',
+          email: reqData.email || (isAdmin ? 'admin@shopindia.com' : 'user@example.com'),
+          role: isAdmin ? 'admin' : 'customer'
+        };
+        return Promise.resolve({ data: { user: mockUser } });
+      }
+
+      if (url.includes('/auth/register')) {
+        let reqData = {};
+        try { reqData = JSON.parse(error.config.data || '{}'); } catch (e) {}
+        const mockUser = { id: 3, name: reqData.name || 'New User', email: reqData.email || 'user@example.com', role: 'customer' };
+        return Promise.resolve({ data: { user: mockUser } });
+      }
+
       if (url.includes('/auth/me')) {
         return Promise.reject(error);
       }
